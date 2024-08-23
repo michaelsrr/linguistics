@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocimiento de Voz</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reconocimiento de Voz</h1>
+    <p>Frase que tienes que decir: <strong>{{ frase }}</strong></p>
+    <button id="startBtn">Empezar a Grabar</button>
+    <button id="stopBtn">Detener Grabación</button>
+    <div class="status" id="status"></div>
+    <div class="status" id="result"></div>
+
+    <script>
+        document.getElementById('startBtn').addEventListener('click', function() {
+            fetch('/start_recording', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'recording_started') {
+                        document.getElementById('status').innerText = 'Grabación iniciada. Por favor, hable ahora.';
+                    }
+                });
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            fetch('/stop_recording', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('status').innerText = data.error;
+                    } else {
+                        document.getElementById('status').innerText = 'Grabación detenida.';
+                        document.getElementById('result').innerHTML = `
+                            <p>Texto reconocido: ${data.texto_reconocido}</p>
+                            <p>Porcentaje de asertividad: ${data.porcentaje_asertividad}</p>
+                        `;
+                    }
+                });
+        });
+    </script>
+</body>
+</html>

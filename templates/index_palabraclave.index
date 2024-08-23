@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocimiento de Voz</title>
+</head>
+<body>
+    <h1>Reconocimiento de Voz</h1>
+    
+    <!-- Mostrar la frase que el usuario debe decir -->
+    <p><strong>Frase a decir:</strong> "<span id="fraseOriginal">yo soy muy alto</span>"</p>
+    
+    <!-- Botón para iniciar el reconocimiento de voz -->
+    <button onclick="reconocerVoz()">Iniciar Reconocimiento de Voz</button>
+
+    <!-- Mostrar los resultados del reconocimiento de voz -->
+    <div id="resultados">
+        <p id="mensaje"></p>
+        <p id="textoReconocido"></p>
+        <p id="palabraClave"></p>
+        <p id="resultadoFinal"></p>
+    </div>
+
+    <script>
+        function reconocerVoz() {
+            fetch('/recognize', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    // Mostrar los resultados del reconocimiento de voz
+                    document.getElementById('mensaje').innerText = "Mensaje: " + data.mensaje;
+                    document.getElementById('textoReconocido').innerText = "Texto reconocido: " + data.texto_reconocido;
+                    document.getElementById('palabraClave').innerText = "Palabra clave: " + "alto";  // Mostrar la palabra clave
+                    document.getElementById('resultadoFinal').innerText = "Resultado: " + (data.porcentaje_asertividad > 0 ? "Éxito" : "Fracaso");
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

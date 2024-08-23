@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocimiento de Voz</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        .texto { margin: 20px 0; }
+        .button { padding: 10px 20px; margin: 10px 0; border: none; color: white; background-color: #007bff; cursor: pointer; }
+        .button:hover { background-color: #0056b3; }
+        .resultado { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reconocimiento de Voz</h1>
+        <p class="texto">Texto que debes decir:</p>
+        <p class="texto"><strong>{{ texto }}</strong></p>
+        <button id="grabar" class="button">Iniciar Grabación</button>
+        <button id="detener" class="button" disabled>Detener Grabación</button>
+        <button id="transcribir" class="button" disabled>Transcribir</button>
+        <div id="resultado" class="resultado"></div>
+    </div>
+
+    <script>
+        let grabarBtn = document.getElementById('grabar');
+        let detenerBtn = document.getElementById('detener');
+        let transcribirBtn = document.getElementById('transcribir');
+        let resultadoDiv = document.getElementById('resultado');
+
+        grabarBtn.addEventListener('click', () => {
+            fetch('/grabar', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'grabacion_completada') {
+                        grabarBtn.disabled = true;
+                        detenerBtn.disabled = false;
+                        transcribirBtn.disabled = false;
+                        resultadoDiv.innerHTML = 'Grabación iniciada, por favor hable.';
+                    } else {
+                        resultadoDiv.innerHTML = 'Error en la grabación.';
+                    }
+                });
+        });
+
+        detenerBtn.addEventListener('click', () => {
+            grabarBtn.disabled = false;
+            detenerBtn.disabled = true;
+            resultadoDiv.innerHTML = 'Grabación detenida, ahora puedes transcribir.';
+        });
+
+        transcribirBtn.addEventListener('click', () => {
+            fetch('/transcribir', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        resultadoDiv.innerHTML = `
+                            <p>Texto reconocido: ${data.texto_reconocido}</p>
+                            <p>Resultado: ${data.resultado}</p>
+                        `;
+                    } else {
+                        resultadoDiv.innerHTML = `Error: ${data.message}`;
+                    }
+                });
+        });
+    </script>
+</body>
+</html>
